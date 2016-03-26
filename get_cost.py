@@ -13,11 +13,13 @@ def main():
 		print('Failed to load data')
 		sys.exit(1)
 
-	X = data[:,0]
-	y = data[:,1]
+	X = np.matrix(data[:,0]).transpose()
+	y = np.matrix(data[:,1]).transpose()
+	# add column of ones:
+	X = np.insert(X, 0, values=1,axis=1)
 
 	theta = np.matrix('0;0')
 	cost = cf.cost(X,y,theta)
-	print('cost = %d' % cost)		
+	print('cost = %.4f' % cost)		
 
 main()
