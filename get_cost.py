@@ -1,7 +1,8 @@
 #!/usr/bin/python
 
 import numpy as np
-import cost_function as cf
+import cost_function 
+import gradient_descent
 import sys
 
 the_file='ex1data1.txt'
@@ -19,7 +20,8 @@ def main():
 	X = np.insert(X, 0, values=1,axis=1)
 
 	theta = np.matrix('0;0')
-	cost = cf.cost(X,y,theta)
-	print('cost = %.4f' % cost)		
+	alpha = .01
+	iters = 1500
+	gradient_descent.gradient_descent(X, y, theta, alpha, iters)
 
 main()
