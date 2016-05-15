@@ -12,20 +12,25 @@ imageGlob = glob.glob('/Pictures/*jpg')
 
 cascPath = '/opencv/data/haarcascades/haarcascade_frontalface_default.xml'
 faceCascade = cv2.CascadeClassifier(cascPath)
-gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-
-for imgPath in imageGlob:
+INCR = 0
+for imagePath in imageGlob:
     image = cv2.imread(imagePath)
+    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
     faces = faceCascade.detectMultiScale(
         gray,
         scaleFactor=1.1,
-        minNeighbors=1,
+        minNeighbors=5,
         minSize=(30, 30),
-        #flags = cv2.CASCADE_SCALE_IMAGE
-        flags = 0
+        flags = cv2.CASCADE_SCALE_IMAGE
+        #flags = 0
     )
-    print "Found {0} faces!".format(len(faces))
+    num_faces = len(faces)
+    if num_faces:
+        print "Found {0} faces!".format(len(faces))
+        for (x, y, w, h) in faces:
+            cv2.rectangle(image, (x, y), (x+w, y+h), (0, 255, 0), 2)
+        image.tofile('/tmp/%s.jpg' % INCR)
+        INCR = INCR + 1
+        
 
 
-for (x, y, w, h) in faces:
-    cv2.rectangle(image, (x, y), (x+w, y+h), (0, 255, 0), 2)
