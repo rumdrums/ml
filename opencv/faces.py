@@ -3,6 +3,7 @@
 import cv2
 import sys
 import glob
+import os
 
 # https://realpython.com/blog/python/face-recognition-with-python/
 
@@ -11,17 +12,20 @@ import glob
 imageGlob = glob.glob('/Pictures/*jpg')
 
 cascPath = '/opencv/data/haarcascades/haarcascade_frontalface_default.xml'
+#cascPath = '/opencv/data/haarcascades/haarcascade_frontalface_alt.xml'
+#cascPath = '/opencv/data/haarcascades/haarcascade_frontalface_alt2.xml'
+#cascPath = '/opencv/data/lbpcascades/lbpcascade_frontalface.xml'
+
 faceCascade = cv2.CascadeClassifier(cascPath)
-INCR = 0
 for imagePath in imageGlob:
     image = cv2.imread(imagePath)
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
     faces = faceCascade.detectMultiScale(
         gray,
-        scaleFactor=1.1,
-        minNeighbors=5,
-        minSize=(30, 30),
-        flags = cv2.CASCADE_SCALE_IMAGE
+        scaleFactor=1.05,
+        minNeighbors=8,
+        minSize=(20, 20),
+        #flags = cv2.CASCADE_SCALE_IMAGE
         #flags = 0
     )
     num_faces = len(faces)
@@ -29,8 +33,7 @@ for imagePath in imageGlob:
         print "Found {0} faces!".format(len(faces))
         for (x, y, w, h) in faces:
             cv2.rectangle(image, (x, y), (x+w, y+h), (0, 255, 0), 2)
-        image.tofile('/tmp/%s.jpg' % INCR)
-        INCR = INCR + 1
+        cv2.imwrite('/tmp/detected-%s' % os.path.basename(imagePath), image)
         
 
 
