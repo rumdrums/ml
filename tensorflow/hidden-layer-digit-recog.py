@@ -7,7 +7,7 @@ https://www.tensorflow.org/tutorials/mnist/pros/
 import tensorflow as tf
 
 BATCH_SIZE = 100
-NUM_TRAINING_ITERATIONS = 1000
+NUM_TRAINING_ITERATIONS = 100
 HIDDEN_LAYER_SIZE = 25
 
 def get_data():
@@ -48,18 +48,21 @@ def main():
 
   # run training iterations
   for i in range(NUM_TRAINING_ITERATIONS):
-    batch = mnist.train.next_batch(BATCH_SIZE)
-    # print('batch[0] shape: %s, batch[1] shape: %s' % (batch[0].shape, batch[1].shape))
-    _, c = sess.run([optimizer, cost], feed_dict={ x: batch[0], yhat: batch[1] })
-    print("cost: %f " % c)
+    avg_cost = 0
+    total_batch = int(mnist.train.num_examples/BATCH_SIZE)
+    for j in range(total_batch):
+      batch = mnist.train.next_batch(BATCH_SIZE)
+      # print('batch[0] shape: %s, batch[1] shape: %s' % (batch[0].shape, batch[1].shape))
+      _, c = sess.run([optimizer, cost], feed_dict={ x: batch[0], yhat: batch[1] })
+      avg_cost += c / total_batch
+    print("Iteration: %d, cost: %.4f" % (i, avg_cost))
   # get boolean array of true/false for equality of predicted (y) equals actual (yhat)
   correct_prediction = tf.equal(tf.argmax(y, 1), tf.argmax(yhat, 1))
 
   # cast to float and get mean of correct predictions
   accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
 
-  # accuracy should be about 92 %
-  print(accuracy.eval(feed_dict={x: mnist.test.images, yhat: mnist.test.labels}))
+  print("Accuracy: %f" % accuracy.eval(feed_dict={x: mnist.test.images, yhat: mnist.test.labels}))
 
 
 if __name__ == '__main__':
