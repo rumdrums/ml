@@ -6,8 +6,10 @@ https://www.tensorflow.org/tutorials/mnist/pros/
 
 import tensorflow as tf
 
+tf.set_random_seed(0)
+
 BATCH_SIZE = 100
-NUM_TRAINING_ITERATIONS = 1000
+NUM_TRAINING_ITERATIONS = 10000
 
 def get_data():
   from tensorflow.examples.tutorials.mnist import input_data
@@ -24,17 +26,31 @@ def main():
   y_ = tf.placeholder(tf.float32, shape=[None, 10])
 
   # Variables for weights and bias
-  W = tf.Variable(tf.zeros([784,10]))
-  b = tf.Variable(tf.zeros([10]))
+  W1 = tf.Variable(tf.truncated_normal([784,200], stddev=0.1))
+  W2 = tf.Variable(tf.truncated_normal([200,100], stddev=0.1))
+  W3 = tf.Variable(tf.truncated_normal([100,60], stddev=0.1))
+  W4 = tf.Variable(tf.truncated_normal([60,30], stddev=0.1))
+  W5 = tf.Variable(tf.truncated_normal([30,10], stddev=0.1))
+
+  B1 = tf.Variable(tf.zeros([200]))
+  B2 = tf.Variable(tf.zeros([100]))
+  B3 = tf.Variable(tf.zeros([60]))
+  B4 = tf.Variable(tf.zeros([30]))
+  B5 = tf.Variable(tf.zeros([10]))
 
   # regression model
-  y = tf.nn.softmax(tf.matmul(x,W) + b)
+  y1 = tf.nn.sigmoid(tf.matmul(x,W1) + B1)
+  y2 = tf.nn.sigmoid(tf.matmul(y1,W2) + B2)
+  y3 = tf.nn.sigmoid(tf.matmul(y2,W3) + B3)
+  y4 = tf.nn.sigmoid(tf.matmul(y3,W4) + B4)
+  y_logits = tf.matmul(y4,W5) + B5
+  y = tf.nn.softmax(y_logits)
 
   # cost function -- cross-entropy between target
   # and softmax activation function
-  cross_entropy = -tf.reduce_mean( y_ * tf.log(y)) * 1000.0
+  cross_entropy = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits=y_logits, labels=y_))*100.0
 
-  # training via gradient descent with .5 steps
+  # training via gradient descent
   train_step = tf.train.GradientDescentOptimizer(0.003).minimize(cross_entropy)
 
   # initialize variables for use within session
