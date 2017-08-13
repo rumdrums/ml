@@ -33,9 +33,9 @@ def main():
   # regression model
   y = tf.matmul(x,W) + b
 
-  # cost function -- cross-entropy between target 
+  # cost function -- cross-entropy between target
   # and softmax activation function
-  cross_entropy = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(y, y_))
+  cross_entropy = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits=y, labels=y_))
 
   # training via gradient descent with .5 steps
   train_step = tf.train.GradientDescentOptimizer(0.5).minimize(cross_entropy)
