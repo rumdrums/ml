@@ -1,0 +1,48 @@
+anomaly detection
+. take a certain number of unlabeled examples and treat them as your test set
+ -- data should be more or less good but can have some anomalies
+
+. on dev / test set:
+  predict whether y is 1 or 0 based on p(x) <= e
+  say e = .01
+
+. evaluation metrics:
+precision/recall
+f1-score
+
+. can use dev set to choose e
+
+
+Multivariate Normal Distribution
+
+given x E R^n
+parameters:
+  mu E R^n
+  Sigma E R^nXn (covariance matrix)
+
+
+calculating p(x; mu, Sigma) =
+
+( 1 / (( 2pi^(n/2) * |Sigma| ^ (1/2) )) ) * exp(-1/2(x-mu)^T Sigma^-1(x-mu))
+
+| Sigma | = determinant of Sigma
+
+
+mu = 1/m (Sigma(x^i)) -- just an average
+Sigma = 1/m(Sigma((x^i-mu))(x^i-mu)^T)
+
+
+########################################
+from sklearn import preprocessing
+import numpy as np
+
+http_verbs = np.array([["GET"], ["HEAD"], ["POST"], ["PUT"], ["DELETE"], ["CONNECT"], ["OPTIONS"], ["TRACE"], ["PATCH"], ["GET"], ["HEAD"]])
+
+
+enc = preprocessing.LabelEncoder()
+enc.fit(http_verbs[:,0])
+http_verbs[:,0] = enc.transform(http_verbs.ravel())
+ohe = preprocessing.OneHotEncoder(categorical_features = [0])
+########################################
+
+http_verbs = ohe.fit_transform(http_verbs)
