@@ -14,6 +14,19 @@ multivariate_normal.pdf(x, mean=mu)
 
 
 
+######### with scipy/numpy:
+from scipy.stats import multivariate_normal
+import numpy as np
+
+x = np.array([[-1, -2], [0, 30], [-2, -4]])
+mu = x.mean(axis=0)
+sigma = np.cov(x, rowvar=False)
+multivariate_normal.pdf(x, mean=mu, cov=sigma)
+#array([ 0.15915494,  0.05854983,  0.05854983])
+
+###################
+
+
 
 ######### with tensorflow:
 import tensorflow as tf
@@ -30,4 +43,3 @@ with tf.Session() as sess:
 #array([ 0.15915494,  0.05854983,  0.05854983])
 
 ##########################
-

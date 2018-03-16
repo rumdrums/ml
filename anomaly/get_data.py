@@ -9,6 +9,7 @@ import http
 from scipy.stats import multivariate_normal
 import numpy as np
 from sklearn import preprocessing
+import pandas as pd
 
 http_verbs = [ "GET", "HEAD", "POST", "PUT", "DELETE", "CONNECT", "OPTIONS", "TRACE", "PATCH" ]
 http_codes = [ i.value for i in http.HTTPStatus ]
@@ -16,10 +17,10 @@ http_codes = [ i.value for i in http.HTTPStatus ]
 
 #########
 ###### FIXME: path is often _missing_ -- should able able to deal with this
-######
+######        datetime needs to be fixed
+#########
 
 class ELBLogCreationException(Exception): pass
-
 
 class DataSet:
   def __init__(self, records, fields):
@@ -29,25 +30,24 @@ class DataSet:
     for i in self.fields:
       print('field: ', i)
       if self.fields[i] == 'string':
-        setattr(self, i, one_hot([ getattr(j, i) for j in self.records]))
+        setattr(self, i, pd.get_dummies([ getattr(j, i) for j in self.records]))
       else:
-        setattr(self, i, np.array([[ getattr(j, i) for j in self.records]]).astype(np.float).T)
+        setattr(self, i, pd.DataFrame({ i: [ getattr(j, i) for j in self.records]}))
 
   def get_array(self):
-    return np.column_stack([getattr(self, i) for i in self.fields])
+    return pd.concat( [ getattr(self, i) for i in self.fields ], axis=1)
 
   def get_probabilities(self):
     x = self.get_array()
     print("shape: ", x.shape)
-    mu = x.mean(axis=0).ravel()
+    mu = x.mean(axis=0)
     # Sigma = 1/m(Sigma((x^i-mu))(x^i-mu)^T)
-    sigma = np.cov(x.T)
-    print("sigma: ", sigma)
+    sigma = np.cov(x, rowvar=False)
+    # print("sigma: ", sigma)
     print("sigma shape: ", sigma.shape)
     #_x = x-mu.T
     #_sigma = np.dot(_x.T,_x) / (data_set.count-1)
-    prob = multivariate_normal.pdf(x.T[0], mean=mu, cov=sigma)
-    return prob
+    return multivariate_normal.pdf(x, mean=mu, cov=sigma)
 
 
 class ELBLog:
@@ -60,17 +60,17 @@ class ELBLog:
   #excluded_items = set(all_fields) - set(included_fields)
 
   included_fields = {
-    'received_bytes': 'int',
-    # 'bytes': 'int',
-    '@timestamp': 'datetime',
+    'received_bytes': 'float',
+    'bytes': 'float',
+    '@timestamp': 'float',
     'verb': 'string',
-    # 'response_processing_time': 'float',
+    'response_processing_time': 'float',
     'path': 'string',
-    # 'request_processing_time': 'float',
+    'request_processing_time': 'float',
     'response': 'string',
     'urihost': 'string',
     'elb': 'string',
-    # 'backend_processing_time': 'float'
+    'backend_processing_time': 'float'
   }
 
   @property
@@ -102,16 +102,20 @@ class ELBLog:
     self.timestamp = getattr(self, '@timestamp')
 
 
+def feature_normalize(dataset):
+    mu = np.mean(dataset,axis=0)
+    sigma = np.std(dataset,axis=0)
+    return (dataset - mu)/sigma
+
+
 def one_hot(x):
-  """ x is matrix of categorical values, returns
-      one-hot-encoded matrix """
+  """ broken """
   enc = preprocessing.LabelEncoder()
-  ohe = preprocessing.OneHotEncoder(categorical_features = [0])
-  x = np.array([x]).T
-  x[:,0] = enc.fit_transform(x[:,0])
+  ohe = preprocessing.OneHotEncoder()
+  x = x.flatten()
+  x = enc.fit_transform(x)
   np.set_printoptions(threshold=np.nan)
-  x = ohe.fit_transform(x).toarray()
-  print("x: ", x[0,:])
+  x = ohe.fit_transform(x.reshape(-1, 1)).toarray()
   return x
 
 
@@ -203,10 +207,10 @@ def get_data_set(gen):
 
 
 def main():
-  elk_gen = get_elk_records('url', 'index', 3000)
+  elk_gen = get_elk_records("http://localhost:9004", "hm-sys-lb-*", 30)
   data_set = get_data_set(elk_gen)
   print("count: ", data_set.count)
-  print("prob: ", data_set.get_probabilities())
+  print("prob: ", [ i for i in data_set.get_probabilities() ])
 
 
 if __name__ == '__main__':

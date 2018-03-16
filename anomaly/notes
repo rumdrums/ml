@@ -33,6 +33,7 @@ Sigma = 1/m(Sigma((x^i-mu))(x^i-mu)^T)
 
 
 ########################################
+
 from sklearn import preprocessing
 import numpy as np
 
@@ -41,8 +42,22 @@ http_verbs = np.array([["GET"], ["HEAD"], ["POST"], ["PUT"], ["DELETE"], ["CONNE
 
 enc = preprocessing.LabelEncoder()
 enc.fit(http_verbs[:,0])
-http_verbs[:,0] = enc.transform(http_verbs.ravel())
+http_verbs[:,0] = enc.transform(http_verbs[:,0])
 ohe = preprocessing.OneHotEncoder(categorical_features = [0])
+http_verbs = ohe.fit_transform(http_verbs).toarray()
+
 ########################################
 
-http_verbs = ohe.fit_transform(http_verbs)
+from sklearn import preprocessing
+import numpy as np
+
+http_verbs = np.array([["GET"], ["HEAD"], ["POST"], ["PUT"], ["DELETE"], ["CONNECT"], ["OPTIONS"], ["TRACE"], ["PATCH"], ["GET"], ["HEAD"]])
+
+
+enc = preprocessing.LabelEncoder()
+ohe = preprocessing.OneHotEncoder(categorical_features = [0])
+
+http_verbs[:,0] = enc.fit_transform(http_verbs[:,0])
+http_verbs = ohe.fit_transform(http_verbs).toarray()
+
+
