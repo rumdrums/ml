@@ -3,12 +3,11 @@
 from scipy.stats import multivariate_normal
 import numpy as np
 
-x = np.array([[-1, -1], [0, 0], [-2, -2]])
-mu = [-1, -1]
-#sigma = [1, 2.]
+x = np.array([[-1, -3], [0, 8], [-2, 10]])
+mu = x.mean(axis=0)
 
 multivariate_normal.pdf(x, mean=mu)
-#array([ 0.15915494,  0.05854983,  0.05854983])
+#array([  2.01556455e-15,   1.07237757e-03,   3.59742598e-07])
 
 ###################
 
@@ -18,11 +17,12 @@ multivariate_normal.pdf(x, mean=mu)
 from scipy.stats import multivariate_normal
 import numpy as np
 
-x = np.array([[-1, -2], [0, 30], [-2, -4]])
+x = np.array([[-1, -3], [0, 8], [-2, 10]])
 mu = x.mean(axis=0)
 sigma = np.cov(x, rowvar=False)
 multivariate_normal.pdf(x, mean=mu, cov=sigma)
-#array([ 0.15915494,  0.05854983,  0.05854983])
+
+#array([ 0.01179424,  0.01179424,  0.01179424])
 
 ###################
 
@@ -32,14 +32,34 @@ multivariate_normal.pdf(x, mean=mu, cov=sigma)
 import tensorflow as tf
 import numpy as np
 tfd = tf.contrib.distributions
-X = tf.constant(np.array([[-1., -1.], [0., 0.], [-2., -2.]]), name="X")
-mu = tf.constant(np.array([-1., -1.]), name="mu")
+x = np.array([[-1, -3], [0, 8], [-2, 10]])
+X = tf.constant(x, dtype=tf.float64, name="X")
+mu = tf.constant(x.mean(axis=0), name="mu")
 
 mvn = tfd.MultivariateNormalDiag(
     loc=mu)
 with tf.Session() as sess:
   mvn.prob(X).eval()
 
-#array([ 0.15915494,  0.05854983,  0.05854983])
+#array([  2.01556455e-15,   1.07237757e-03,   3.59742598e-07])
+
+
+
+### proper covariance
+import tensorflow as tf
+import numpy as np
+tfd = tf.contrib.distributions
+
+X = tf.constant(x, dtype=tf.float64, name="X")
+mu = tf.constant(x.mean(axis=0), name="mu")
+sigma = tf.constant(np.cov(x, rowvar=False))
+
+mvn = tfd.MultivariateNormalFullCovariance(
+    loc=mu,
+    covariance_matrix=sigma)
+
+with tf.Session() as sess:
+  mvn.prob(X).eval()
+#array([ 0.01179424,  0.01179424,  0.01179424])
 
 ##########################

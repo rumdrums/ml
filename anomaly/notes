@@ -60,4 +60,53 @@ ohe = preprocessing.OneHotEncoder(categorical_features = [0])
 http_verbs[:,0] = enc.fit_transform(http_verbs[:,0])
 http_verbs = ohe.fit_transform(http_verbs).toarray()
 
+#############################################################################3
 
+__Unsupervised Learning__
+. find some structure in data given
+
+I. Clustering
+. K-means
+ -- inputs:
+ k: number of cluster
+ training set: each x^i is n-dimensional vector
+
+Algorithm:
+. randomly initialize k cluster centroids, u_1, u_2, ..., u_k E R^n
+. repeat:
+  -- 1) identify closest centroid to each point:
+       for each i in 1 to m:
+         c^i = index (from 1 to K) of centroid closest to x^i
+  -- 2) move centroid k to average of points assigned to k
+        for each k 1 to K:
+          u_k = mean of points assigned to cluster k
+
+u_c^i = cluster centroid to which x^i has been assigned
+
+Cost function:
+  J(c^i, ..., c^m, u_1, ... ,u^k) = 1/m Sigma( || x^i - u_c^i ||^2 )
+
+Initialization:
+. randomly choose k points and set those to centroids
+  -- b/c of this, k-means can arrive at different optima depending on initialization
+  -- so do many random initializations and choose one that had lowest cost
+    -- * only if relatively small number of clusters
+
+Choosing k
+. usually a manual process based on your purpose
+. "elbow method" when looking at a plot of cost function against K
+  can work if the 'elbow' in the plot is clear cut
+
+
+II. Dimensionality Reduction
+
+. PCA
+First do mean normalization
+SVD and Eigenvectors -- both can be applied to covariance matrix
+for dimensionality reduction -- both return similar results
+
+[ U, S, V ] = svd(Sigma)
+
+U is nXn matrix -- columns are u vectors, take first k vectors to correspond to desired dimension reduction
+Ureduce = this reduced matrix
+z = Ureduce'*X -- reduced dimensional representation of X
