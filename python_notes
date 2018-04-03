@@ -36,6 +36,7 @@ def drop_columns_below_nonzero_thresh(x, thresh):
     i += 1
   return x
 
+
 # https://stackoverflow.com/questions/17778394/list-highest-correlation-pairs-from-a-large-correlation-matrix-in-pandas
 ### instead of get_redundant_pairs(df),
 ### you can use "cor.loc[:,:] = np.tril(cor.values, k=-1)"

@@ -100,13 +100,31 @@ Choosing k
 
 II. Dimensionality Reduction
 
-. PCA
-First do mean normalization
-SVD and Eigenvectors -- both can be applied to covariance matrix
-for dimensionality reduction -- both return similar results
+PCA
+. goal: find k vectors (u^1, ..., u^k) onto which to project data to minimize projection error
+. First do mean normalization and feature scaling
+ -- e.g., ((x_j - u_j) / SD_j)
+. SVD and Eigenvectors -- both can be applied to covariance matrix
+  for dimensionality reduction -- both return similar results when covariance matrix is input
+. PCA does NOT require assumption of normality
+. PCA assumes linear relationship beteen variables (and hence that covariance matrix is meanignful)
 
 [ U, S, V ] = svd(Sigma)
 
-U is nXn matrix -- columns are u vectors, take first k vectors to correspond to desired dimension reduction
-Ureduce = this reduced matrix
-z = Ureduce'*X -- reduced dimensional representation of X
+U is nXn matrix -- columns are u vectors, take first k column vectors to correspond to desired dimension reduction
+Ureduce = nXk matrix consisting of the k vectors taken from U
+Z = Ureduce' * X -- reduced dimensional representation of X
+     ^         ^
+     |         |
+ nXk matrix * nX1 matrix = kX1 matrix
+
+Choosing k for PCA (ie, number of principal components)
+. "choose k so that 99% of variance is retained", or 95, 90, etc.
+
+(1/m Sigma(|| x - x_approx||^2)) / (1/m(Sigma(|| x ||^2))) <= 0.01 (for 99%)
+ = average squared projection error / total variation in data
+
+
+One of most common uses of PCA: supervised learning speedup
+Bad use of PCA: reduce number of features to prevent overfitting
+
